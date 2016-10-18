@@ -1,7 +1,7 @@
 # newton - Newton-Raphson solver
 #
 # For APC 524 Homework 3
-# CWR, 18 Oct 2010
+# Hao Zhang, Oct 18, 2016
 
 import numpy as N
 import functions as F
@@ -35,4 +35,4 @@ class Newton(object):
             fx = self._f(x)
         Df_x = F.ApproximateJacobian(self._f, x, self._dx)
         h = N.linalg.solve(N.matrix(Df_x), N.matrix(fx))
-        return x + h
+        return x - h
