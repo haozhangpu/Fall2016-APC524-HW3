@@ -7,7 +7,7 @@ import numpy as N
 import functions as F
 
 class Newton(object):
-    def __init__(self, f, Df=None, tol=1.e-6, maxiter=20, dx=1.e-6):
+    def __init__(self, f, Df=None, tol=1.e-6, r=1, maxiter=20, dx=1.e-6):
         """Return a new object to find roots of f(x) = 0 using Newton's method.
         f:       function f(x) = 0
         Df:      Analytical Jacobian of f(x)
@@ -17,6 +17,7 @@ class Newton(object):
         self._f = f
         self._Df = Df
         self._tol = tol
+        self._r = r
         self._maxiter = maxiter
         self._dx = dx
 
@@ -28,6 +29,8 @@ class Newton(object):
             fx = self._f(x)
             if N.linalg.norm(fx) < self._tol:
                 return x
+            if N.linalg.norm(x-x0) > self._r:
+                raise Exception('xk outside of radius r of the initial guess x0')
             x = self.step(x, fx)
         if N.linalg.norm(self._f(x)) > self._tol and i >= self._maxiter - 1:
             raise Exception('Newton method fails to converge')
