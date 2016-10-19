@@ -26,6 +26,8 @@ class Newton(object):
             if N.linalg.norm(fx) < self._tol:
                 return x
             x = self.step(x, fx)
+        if N.linalg.norm(self._f(x)) > self._tol and i >= self._maxiter - 1:
+            raise Exception('Newton method fails to converge')
         return x
 
     def step(self, x, fx=None):
