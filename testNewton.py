@@ -6,12 +6,14 @@ import numpy as N
 
 class TestNewton(unittest.TestCase):
     def testLinear(self):
+        """Test Newton root finder with linear function f(x)=3x+6"""
         f = lambda x : 3.0 * x + 6.0
         solver = newton.Newton(f, tol=1.e-15, maxiter=2)
         x = solver.solve(2.0)
         self.assertEqual(x, -2.0)
         
     def testLinear2D(self):
+        """Test Newton root finder with 2D linear function f(x)=Ax+b"""
         A = N.matrix("1. 2.; 3. 4.")
         b = N.matrix("-3;-7")
         def f(x):
@@ -23,6 +25,7 @@ class TestNewton(unittest.TestCase):
         N.testing.assert_array_almost_equal(x, xsolu)
         
     def testPolynomial1D(self):
+        """Test Newton root finder with polynomial function"""
         def f(x):
             return x**2 - 3*x - 4
         x0, xsolu = 3, 4
@@ -31,6 +34,7 @@ class TestNewton(unittest.TestCase):
         self.assertAlmostEqual(x, xsolu)
         
     def testPolynomial2D(self):
+        """Test Newton root finder with 2D polynomial function"""
         def f(x):
             fx = N.matrix(N.zeros((2,1)))
             fx[0] = x[0]**2 - x[1]
@@ -42,6 +46,7 @@ class TestNewton(unittest.TestCase):
         N.testing.assert_array_almost_equal(x, xsolu)
         
     def testStepLinear2D(self):
+        """Test single step of Newton root finder with 2D linear function"""
         A = N.matrix("1. 2.; 3. 4.")
         b = N.matrix("-3;-7")
         def f(x):
@@ -53,6 +58,7 @@ class TestNewton(unittest.TestCase):
         N.testing.assert_array_almost_equal(x, xsolu)
         
     def testConvergeException(self):
+        """Test Newton root finder raises an exception if fails to converge"""
         def f(x):
             fx = N.matrix(N.zeros((2,1)))
             fx[0] = x[0]**2 - x[1]
@@ -63,6 +69,18 @@ class TestNewton(unittest.TestCase):
         with self.assertRaises(Exception) as ExceptionMessage:
             solver.solve(x0)
         self.assertTrue('Newton method fails to converge' in ExceptionMessage.exception)
-
+        
+    def testNewtonAnalyticJacobian(self):
+        """Test Newton root finder is actually using the analytical Jacobian"""
+        def f(x):
+            return x**2 + 2*x + 3
+        def Df(x):
+            return 2*x + 2
+        x0 = 1.
+        solver = newton.Newton(f,Df,dx=1e-1)
+        x1_Newton = solver.step(x0)
+        x1_AnalJocabian = x0 - N.linalg.solve(N.matrix(Df(x0)), N.matrix(f(x0)))
+        self.assertEqual(x1_Newton, x1_AnalJocabian)
+        
 if __name__ == "__main__":
     unittest.main()
